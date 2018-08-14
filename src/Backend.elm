@@ -77,6 +77,7 @@ sumarUnLike id pelicula = if pelicula.id == id then
 --                mostrarlo junto a la misma;
 -- **************
 
+type alias PosiblesGustos = (String, List String)
 otrosPosiblesGustos = ("Terror", ["Suspenso"])
 
 calcularPorcentajeDeCoincidencia : Preferences -> List Movie -> List Movie
@@ -107,14 +108,17 @@ porcGenero preferencias pelicula = if (esPeliculaDelGenero preferencias.genre pe
                                       {pelicula | matchPercentage = pelicula.matchPercentage}
 
 
-porcGeneroAlternativo : Preference -> Movie -> (String,[String]) -> Movie 
-porcGeneroAlternativo preferencias pelicula otrosPosiblesGustos = if (conGeneroAlternativo preferencias.genre pelicula.genre otrosPosiblesGustos) then
+porcGeneroAlternativo : Preferences -> Movie -> PosiblesGustos -> Movie 
+porcGeneroAlternativo preferencias pelicula otrosPosiblesGustos = if (conGeneroAlternativo preferencias.genre pelicula otrosPosiblesGustos) then
                                                                     {pelicula | matchPercentage = pelicula.matchPercentage + 15}
                                                                   else
                                                                     {pelicula | matchPercentage = pelicula.matchPercentage}
 
-conGeneroAlternativo : String -> String -> (String,[String]) -> Bool
-conGeneroAlternativo gen genPelicula otrosPosiblesGustos = (gen == otrosPosiblesGustos.fst) && (List.any ((==) genPelicula) otrosPosiblesGustos.snd)
+conGeneroAlternativo : String -> Movie -> PosiblesGustos -> Bool
+conGeneroAlternativo gen pelicula otrosPosiblesGustos = (gen == Tuple.first otrosPosiblesGustos) && (List.length (List.filter (esPeliculaDelGenero2 pelicula) (Tuple.second otrosPosiblesGustos)) > 0)
+
+esPeliculaDelGenero2: Movie -> String -> Bool
+esPeliculaDelGenero2 pelicula genero = esPeliculaDelGenero genero pelicula 
 
 actuaEnLaPelicula: String-> Movie -> Bool
 actuaEnLaPelicula actor pelicula = List.any ((==) actor) pelicula.actors
